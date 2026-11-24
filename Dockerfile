@@ -2,13 +2,15 @@
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
 
-FROM golang:1.27 AS builder
+FROM --platform=$BUILDPLATFORM golang:1.27 AS builder
+ARG TARGETOS
+ARG TARGETARCH
 WORKDIR /code
 ADD go.mod go.sum ./
 RUN go mod download
 ADD . ./
 ENV CGO_ENABLED=0
-RUN go build -o fake-gcs-server
+RUN GOOS=$TARGETOS GOARCH=$TARGETARCH go build -o fake-gcs-server
 
 FROM alpine:3.24.1
 RUN apk add --no-cache mailcap
